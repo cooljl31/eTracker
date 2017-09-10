@@ -2,9 +2,7 @@ package main
 
 import (
 	"encoding/xml"
-	"fmt"
 	"net/http"
-	"strings"
 	"text/template"
 
 	"github.com/julienschmidt/httprouter"
@@ -12,8 +10,7 @@ import (
 
 var tmpl *template.Template
 
-// Categories fields from the exasol
-type Categories struct {
+type categories struct {
 	XMLName    xml.Name `xml:"category"`
 	CustomerID string   `xml:"customer_id,attr"`
 	SiteCode   string   `xml:"site_code"`
@@ -22,17 +19,12 @@ type Categories struct {
 	From       string   `xml:"time>from"`
 	Until      string   `xml:"time>to"`
 	Date       string   `xml:"date"`
-	Position   Tag      `xml:"positions"`
+	Position   tag      `xml:"positions"`
 }
 
-// Tag attr for positions
-type Tag struct {
+type tag struct {
 	CategoryID int    `xml:"category_id,attr"`
 	Value      string `xml:",chardata"`
-}
-
-func (cat Categories) sConv(n string) string {
-	return strings.ToLower(n)
 }
 
 func init() {
@@ -46,8 +38,7 @@ func main() {
 }
 
 func category(res http.ResponseWriter, req *http.Request, prs httprouter.Params) {
-	fmt.Printf("Thats cool %s\n", prs)
-	pxml := Categories{
+	pxml := categories{
 		CustomerID: prs.ByName("customer_id"),
 		SiteCode:   prs.ByName("site_code"),
 		Language:   prs.ByName("language"),
@@ -55,7 +46,7 @@ func category(res http.ResponseWriter, req *http.Request, prs httprouter.Params)
 		Name:       "hello",
 		Until:      prs.ByName("from"),
 		Date:       prs.ByName("date"),
-		Position:   Tag{0, "heelo"},
+		Position:   tag{0, "heelo"},
 	}
 
 	out, err := xml.MarshalIndent(pxml, "\t", "\t")
